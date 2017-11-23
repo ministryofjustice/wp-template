@@ -1,91 +1,139 @@
-# [Bedrock](https://roots.io/bedrock/)
-[![Packagist](https://img.shields.io/packagist/v/roots/bedrock.svg?style=flat-square)](https://packagist.org/packages/roots/bedrock)
-[![Build Status](https://img.shields.io/travis/roots/bedrock.svg?style=flat-square)](https://travis-ci.org/roots/bedrock)
+# Template WordPress project
 
-Bedrock is a modern WordPress stack that helps you get started with the best development tools and project structure.
+Use this template to bootstrap a new WordPress project for use in the MOJ docker hosting environment.
 
-Much of the philosophy behind Bedrock is inspired by the [Twelve-Factor App](http://12factor.net/) methodology including the [WordPress specific version](https://roots.io/twelve-factor-wordpress/).
+It will provide you with a skeleton WordPress installation which runs locally in docker, and pre-configured with composer for dependency management.
 
 ## Features
 
-* Better folder structure
-* Dependency management with [Composer](http://getcomposer.org)
-* Easy WordPress configuration with environment specific files
-* Environment variables with [Dotenv](https://github.com/vlucas/phpdotenv)
-* Autoloader for mu-plugins (use regular plugins as mu-plugins)
-* Enhanced security (separated web root and secure passwords with [wp-password-bcrypt](https://github.com/roots/wp-password-bcrypt))
-
-Use [Trellis](https://github.com/roots/trellis) for additional features:
-
-* Easy development environments with [Vagrant](http://www.vagrantup.com/)
-* Easy server provisioning with [Ansible](http://www.ansible.com/) (Ubuntu 16.04, PHP 7.1, MariaDB)
-* One-command deploys
-
-See a complete working example in the [roots-example-project.com repo](https://github.com/roots/roots-example-project.com).
+- Based on [roots/bedrock](https://roots.io/bedrock)
+- Dependency management with [Composer](https://getcomposer.org)
+- Enhanced password hashing using bcrypt
 
 ## Requirements
 
-* PHP >= 5.6
-* Composer - [Install](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)
+- PHP >= 7.1
+- Composer - [Install](https://getcomposer.org/doc/00-intro.md#installation-linux-unix-osx)
+- Docker & docker-compose - [Install](https://www.docker.com/docker-mac)
+- Dory (docker proxy for local development) - [Install](https://github.com/FreedomBen/dory)
 
-## Installation
+## Getting Started
 
-1. Create a new project in a new folder for your project:
+1. Clone this repo to your local machine. Since you'll be using this as a starter for your project, you'll want to delete the `.git` directory and initiate it as a new repository.
+    ```bash
+    git clone git@github.com:ministryofjustice/wp-template.git .
+    rm -rf .git
+    git init
+    ```
 
-  `composer create-project roots/bedrock your-project-folder-name`
+2. Create a `.env` file by copying from `.env.example`:
+    ```bash
+    cp .env.example .env
+    ```
 
-2. Update environment variables in `.env`  file:
-  * `DB_NAME` - Database name
-  * `DB_USER` - Database user
-  * `DB_PASSWORD` - Database password
-  * `DB_HOST` - Database host
-  * `WP_ENV` - Set to environment (`development`, `staging`, `production`)
-  * `WP_HOME` - Full URL to WordPress home (http://example.com)
-  * `WP_SITEURL` - Full URL to WordPress including subdirectory (http://example.com/wp)
-  * `AUTH_KEY`, `SECURE_AUTH_KEY`, `LOGGED_IN_KEY`, `NONCE_KEY`, `AUTH_SALT`, `SECURE_AUTH_SALT`, `LOGGED_IN_SALT`, `NONCE_SALT`
+    Set the `SERVER_NAME` variable – it should be your project name, and must always end with `.docker`. This is the hostname that will be used for development on your local machine.
 
-  If you want to automatically generate the security keys (assuming you have wp-cli installed locally) you can use the very handy [wp-cli-dotenv-command][wp-cli-dotenv]:
+3. Build the project locally. This will install composer dependencies on your local filesystem.
+    ```bash
+    make build
+    ```
 
-      wp package install aaemnnosttv/wp-cli-dotenv-command
+4. Start the dory proxy, if it's not already running.
+    ```bash
+    dory up
+    ```
 
-      wp dotenv salts regenerate
+    If you get an error message when trying to start dory, make sure you have docker running.
 
-  Or, you can cut and paste from the [Roots WordPress Salt Generator][roots-wp-salt].
+5. Build and run the docker image.
+    ```bash
+    make run
+    ```
 
-3. Add theme(s) in `web/app/themes` as you would for a normal WordPress site.
+6. Once the docker image has built and is running, you should be able to access the running container by going to the hostname you specified in `.env` using your web browser.
 
-4. Set your site vhost document root to `/path/to/site/web/` (`/path/to/site/current/web/` if using deploys)
+    You will need to run through the WordPress installation wizard in your browser.
 
-5. Access WP admin at `http://example.com/wp/wp-admin`
+    The WordPress admin area will be accessible at `/wp/wp-admin`.
 
-## Deploys
+## Composer + WordPress plugins
 
-There are two methods to deploy Bedrock sites out of the box:
+The installation of WordPress core and plugins is managed by composer.
 
-* [Trellis](https://github.com/roots/trellis)
-* [bedrock-capistrano](https://github.com/roots/bedrock-capistrano)
+See `composer.json` for the required packages.
 
-Any other deployment method can be used as well with one requirement:
+Plugins in the [WordPress plugin repository](https://wordpress.org/plugins/) are available from [WordPress Packagist](https://wpackagist.org/) (wpackagist).
 
-`composer install` must be run as part of the deploy process.
+Premium and custom plugins used by MOJ are available in the private composer repository [composer.wp.dsd.io](https://composer.wp.dsd.io).
 
-## Documentation
+### WordPress Packagist plugins
+
+Wpackagist plugins are named by their slug on the WordPress plugin repository, prefixed with the vendor `wpackagist-plugin`.
+
+Some examples:
+
+| Plugin name | WordPress plugin URL                         | URL slug      | package name                      |
+| ----------- | -------------------------------------------- | ------------- | --------------------------------- |
+| Akismet     | https://wordpress.org/plugins/akismet/       | akismet       | `wpackagist-plugin/akismet`       |
+| Hello Dolly | https://wordpress.org/plugins/hello-dolly/   | hello-dolly   | `wpackagist-plugin/hello-dolly`   |
+| Yoast SEO   | https://wordpress.org/plugins/wordpress-seo/ | wordpress-seo | `wpackagist-plugin/wordpress-seo` |
+
+#### Example: Installing Akismet plugin
+
+Run the following command:
+
+```
+composer require "wpackagist-plugin/akismet" "*"
+```
+
+This will install the latest version of [Akismet](https://wordpress.org/plugins/akismet/) using the corresponding [wpackagist package](https://wpackagist.org/search?q=akismet).
+
+### Private composer repository
+
+The private composer repository [composer.wp.dsd.io](https://composer.wp.dsd.io) contains premium and custom WordPress plugins.
+
+Access to this repository is restricted. Refer to internal documentation for further details.
+
+## Theme
+
+Put your theme files in `web/app/themes`.
+
+Public themes can be installed using wpackagist.
+
+### Building theme assets
+
+Theme assets can be built as part of the docker image. Add required commands to `bin/build.sh`.
+
+### Configure the default theme
+
+Set your theme as the default by adding the following line to `config/application.php`:
+
+```php
+define('WP_DEFAULT_THEME', 'yourthemename');
+```
+
+## WP-CLI
+
+The [WordPress CLI](https://wp-cli.org/) is a useful tool for running commands against your WordPress installation.
+
+To use WP-CLI, your docker container must already be running. (This will probably be running in a separate terminal session/tab.)
+
+1. Run:
+    ```bash
+    make bash
+    ```
+
+    A bash session will be opened in the running container.
+
+2. The WP-CLI will be available as `wp`.
+
+    For example, to list all users in the install:
+    ```bash
+    wp user list
+    ```
+
+## Bedrock
+
+This project is based on Bedrock. Therefore, much of the Bedrock documentation will be applicable.
 
 Bedrock documentation is available at [https://roots.io/bedrock/docs/](https://roots.io/bedrock/docs/).
-
-## Contributing
-
-Contributions are welcome from everyone. We have [contributing guidelines](https://github.com/roots/guidelines/blob/master/CONTRIBUTING.md) to help you get started.
-
-## Community
-
-Keep track of development and community news.
-
-* Participate on the [Roots Discourse](https://discourse.roots.io/)
-* Follow [@rootswp on Twitter](https://twitter.com/rootswp)
-* Read and subscribe to the [Roots Blog](https://roots.io/blog/)
-* Subscribe to the [Roots Newsletter](https://roots.io/subscribe/)
-* Listen to the [Roots Radio podcast](https://roots.io/podcast/)
-
-[roots-wp-salt]:https://roots.io/salts.html
-[wp-cli-dotenv]:https://github.com/aaemnnosttv/wp-cli-dotenv-command
