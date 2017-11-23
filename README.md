@@ -9,6 +9,8 @@ It will provide you with a skeleton WordPress installation which runs locally in
 - Based on [roots/bedrock](https://roots.io/bedrock)
 - Dependency management with [Composer](https://getcomposer.org)
 - Enhanced password hashing using bcrypt
+- Builds into a docker image
+- Docker-compose is used to run as a local development server
 
 ## Requirements
 
@@ -19,11 +21,10 @@ It will provide you with a skeleton WordPress installation which runs locally in
 
 ## Getting Started
 
-1. Clone this repo to your local machine. Since you'll be using this as a starter for your project, you'll want to delete the `.git` directory and initiate it as a new repository.
+1. Clone this repo to your local machine. Since you'll be using this as a starter for your project, you'll want to delete the `.git` directory.
     ```bash
     git clone git@github.com:ministryofjustice/wp-template.git .
     rm -rf .git
-    git init
     ```
 
 2. Create a `.env` file by copying from `.env.example`:
@@ -131,6 +132,15 @@ To use WP-CLI, your docker container must already be running. (This will probabl
     ```bash
     wp user list
     ```
+
+## Email delivery
+
+When running locally for development, emails sent by WordPress are not delivered. Instead they are captured by [mailcatcher](https://mailcatcher.me/).
+
+To see emails, go to http://mail.`SERVER_NAME` (i.e. the hostname set in your `.env` file) in your browser.
+e.g. http://mail.example.docker
+
+This will load a webmail-like interface and display all emails that WordPress has sent.
 
 ## Bedrock
 
