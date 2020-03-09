@@ -27,12 +27,14 @@
     "koodimonni-language/core-en_gb": "*",
     "oscarotero/env": "^1.1.0",
     "roots/wp-password-bcrypt": "*",
-    "wpackagist-plugin/google-analytics-dashboard-for-wp": "*",
+    "wpackagist-plugin/wp-analytify":"*",
+    "wpackagist-plugin/analytify-analytics-dashboard-widget":"*",
     "ministryofjustice/wp-rewrite-media-to-s3": "^0.1.1",
     "acf/advanced-custom-fields-pro": "*",
     "wpackagist-plugin/wordpress-seo": "*",
     "wpackagist-plugin/classic-editor": "*",
     "wpackagist-plugin/fast-user-switching": "*",
+    "ministryofjustice/wp-moj-components": "*",
     "ministryofjustice/wp-user-roles": "*"
   },
   "require-dev": {
@@ -52,7 +54,7 @@
     "wordpress-install-dir": "web/wp"
   },
   "scripts": {
-    "post-root-package-install": [
+    "post-update-cmd": [
       "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
     ],
     "test": [
